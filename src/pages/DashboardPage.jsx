@@ -18,7 +18,7 @@ export default function DashboardPage() {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch('/sp500_features.csv');
+        const response = await fetch(`${import.meta.env.BASE_URL}sp500_features.csv`);
         if (!response.ok) {
           throw new Error(`Failed to load CSV: ${response.status}`);
         }
