@@ -13,16 +13,11 @@ export default function FeatureTable({ rows, sortConfig, onSort }) {
 
   const isNegative = (column, value) => percentColumns.has(column) && Number(value) < 0;
 
-  const sortIndicator = (column) => {
-    if (sortConfig.key !== column) return '↕';
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
-  };
-
   return (
-    <div className="overflow-hidden rounded-xl border border-dashboard-border bg-dashboard-panel">
-      <div className="max-h-[65vh] overflow-auto">
+    <div className="overflow-hidden rounded-2xl border border-dashboard-border bg-white shadow-soft/70">
+      <div className="max-h-[420px] overflow-auto">
         <table className="min-w-full border-collapse text-sm">
-          <thead className="sticky top-0 z-10 bg-dashboard-panelAlt">
+          <thead className="sticky top-0 z-10 bg-slate-50">
             <tr>
               {columns.map((column) => (
                 <th key={column} className="border-b border-dashboard-border px-4 py-3 text-left">
@@ -32,7 +27,7 @@ export default function FeatureTable({ rows, sortConfig, onSort }) {
                     type="button"
                   >
                     {column}
-                    <span>{sortIndicator(column)}</span>
+                    <span>{sortConfig.key === column ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                   </button>
                 </th>
               ))}
@@ -40,12 +35,9 @@ export default function FeatureTable({ rows, sortConfig, onSort }) {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.ticker} className="border-b border-dashboard-border/50 hover:bg-dashboard-panelAlt/60">
+              <tr key={row.ticker} className="border-b border-slate-100 hover:bg-slate-50/80">
                 {columns.map((column) => (
-                  <td
-                    key={`${row.ticker}-${column}`}
-                    className={`px-4 py-2.5 ${isNegative(column, row[column]) ? 'text-dashboard-negative' : 'text-dashboard-text'}`}
-                  >
+                  <td key={`${row.ticker}-${column}`} className={`px-4 py-2.5 ${isNegative(column, row[column]) ? 'text-dashboard-negative' : 'text-slate-700'}`}>
                     {formatCell(column, row[column])}
                   </td>
                 ))}

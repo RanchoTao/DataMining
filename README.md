@@ -1,25 +1,47 @@
-# S&P500 Feature Matrix
+# S&P500 Market Map
 
-A static React + Vite + Tailwind dashboard for visualizing S&P500 feature data from a local CSV.
+A static React + Vite + Tailwind dashboard that visualizes S&P500 features as an animated, light-theme market map using local CSV data.
 
-## Live Deployment Target
-
-After GitHub Pages deployment, the site is served at:
+## Live Site
 
 - https://ranchotao.github.io/DataMining/
 
-## Tech Stack
+## Stack
 
 - React
 - Vite
 - TailwindCSS
 - PapaParse
+- Framer Motion
 
-## Data Source
+## Data Pipeline
 
-- Source CSV: `sp500_features.csv`
-- Public CSV used by frontend: `public/sp500_features.csv`
-- Data is loaded with `fetch(`${import.meta.env.BASE_URL}sp500_features.csv`)` and parsed with PapaParse.
+- Source file: `sp500_features.csv`
+- Frontend-loaded file: `public/sp500_features.csv`
+- Fetch path: `fetch(`${import.meta.env.BASE_URL}sp500_features.csv`)`
+- Parser: PapaParse (`header: true`, `skipEmptyLines: true`)
+
+## Features
+
+- Light, minimal, VD-style UI with rounded cards, subtle shadows, and thin borders.
+- Main animated SVG market map:
+  - x-axis: `volatility_1y`
+  - y-axis: `return_1y`
+  - node size: `abs(momentum_6m)`
+  - node color: soft blue (positive return), soft red (negative return)
+  - top 20 labels by importance (`max(abs(return_1y), abs(momentum_6m))`)
+  - faint animated proximity lines
+  - smooth node entry + subtle breathing motion
+- Interaction:
+  - Hover tooltip with ticker and all feature values
+  - Click node to highlight selection
+  - Search box focuses/highlights ticker
+- Summary cards:
+  - number of assets
+  - average return
+  - average volatility
+  - worst drawdown
+- Secondary sortable/searchable table below visualization.
 
 ## Project Structure
 
@@ -27,6 +49,7 @@ After GitHub Pages deployment, the site is served at:
 src/
   components/
     FeatureTable.jsx
+    MarketMap.jsx
     SummaryCards.jsx
   pages/
     DashboardPage.jsx
@@ -41,72 +64,30 @@ public/
   deploy.yml
 ```
 
-## Local Development
-
-1. Install dependencies:
+## Local Run
 
 ```bash
 npm install
-```
-
-2. Start dev server:
-
-```bash
 npm run dev
 ```
 
-3. Build production bundle:
+## Production Build
 
 ```bash
 npm run build
-```
-
-4. Preview production build locally:
-
-```bash
 npm run preview
 ```
 
 ## GitHub Pages Deployment
 
-This repository includes `.github/workflows/deploy.yml` to build and deploy the static site to GitHub Pages.
+`vite.config.js` is configured with:
 
-### One-time repository settings
+- `base: '/DataMining/'`
 
-1. In GitHub, open **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+Deployment is handled by `.github/workflows/deploy.yml` on pushes to `main`.
 
-### How deployment runs
-
-- On each push to `main`, GitHub Actions will:
-  - install dependencies with `npm ci`
-  - run `npm run build`
-  - deploy `dist/` to GitHub Pages
-
-## Dashboard Features
-
-- Dark, quant-style UI.
-- Header title: **S&P500 Feature Matrix**.
-- Summary cards:
-  - number of assets
-  - average `return_1y`
-  - average `volatility_1y`
-  - worst `max_drawdown_1y`
-- Search by ticker.
-- Sortable columns:
-  - `ticker`
-  - `latest_price`
-  - `return_1y`
-  - `volatility_1y`
-  - `momentum_6m`
-  - `max_drawdown_1y`
-- Scrollable table for large datasets.
-- Loading and graceful error states.
-- Percentage/price formatting and negative value highlighting.
-
-## Constraints Followed
+## Constraints
 
 - Static frontend only.
-- No backend APIs.
-- No databases.
-- No authentication.
+- No backend, database, or authentication.
+- No predictions or trading advice.
