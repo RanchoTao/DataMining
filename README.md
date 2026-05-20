@@ -29,7 +29,7 @@ A static React + Vite + Tailwind dashboard that visualizes S&P500 features as an
   - y-axis: `return_1y`
   - node size: `abs(momentum_6m)`
   - node color: soft blue (positive return), soft red (negative return)
-  - top 20 labels by importance (`max(abs(return_1y), abs(momentum_6m))`)
+  - top 15 labels by importance (`max(abs(return_1y), abs(momentum_6m))`)
   - faint animated proximity lines
   - smooth node entry + subtle breathing motion
 - Interaction:
@@ -95,5 +95,5 @@ Deployment is handled by `.github/workflows/deploy.yml` on pushes to `main`.
 
 ## Two-State Structure Controls
 
-- Toggle button: **Form Structure** / **Return to Ring**.
+- Toggle button: **Form Market Structure** / **Return to Ring**.
 - KMeans cluster count selector: **k = 4..12** (default 8).

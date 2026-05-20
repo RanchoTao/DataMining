@@ -116,7 +116,7 @@ export default function DashboardPage() {
 
             <div className="self-end">
               <button type="button" onClick={() => setMode((prev) => (prev === 'ring' ? 'structure' : 'ring'))} className="rounded-xl border border-dashboard-border bg-dashboard-panelAlt px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                {mode === 'ring' ? 'Form Structure' : 'Return to Ring'}
+                {mode === 'ring' ? 'Form Market Structure' : 'Return to Ring'}
               </button>
             </div>
           </div>
