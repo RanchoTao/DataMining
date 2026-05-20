@@ -24,7 +24,7 @@ A static React + Vite + Tailwind dashboard that visualizes S&P500 features as an
 ## Features
 
 - Light, minimal, VD-style UI with rounded cards, subtle shadows, and thin borders.
-- Main animated SVG market map:
+- Main two-state animated SVG market map:
   - x-axis: `volatility_1y`
   - y-axis: `return_1y`
   - node size: `abs(momentum_6m)`
@@ -91,3 +91,9 @@ Deployment is handled by `.github/workflows/deploy.yml` on pushes to `main`.
 - Static frontend only.
 - No backend, database, or authentication.
 - No predictions or trading advice.
+
+
+## Two-State Structure Controls
+
+- Toggle button: **Form Structure** / **Return to Ring**.
+- KMeans cluster count selector: **k = 4..12** (default 8).

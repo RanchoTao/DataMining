@@ -9,6 +9,8 @@ export default function DashboardPage() {
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedTicker, setSelectedTicker] = useState('');
+  const [mode, setMode] = useState('ring');
+  const [k, setK] = useState(8);
   const [sortConfig, setSortConfig] = useState({ key: 'ticker', direction: 'asc' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,16 +64,18 @@ export default function DashboardPage() {
     return rows.filter((row) => row.ticker.includes(needle));
   }, [rows, search]);
 
-  const sortedRows = useMemo(() => {
-    return [...filteredRows].sort((a, b) => {
-      const { key, direction } = sortConfig;
-      const order = direction === 'asc' ? 1 : -1;
-      const left = a[key];
-      const right = b[key];
-      if (typeof left === 'string' && typeof right === 'string') return left.localeCompare(right) * order;
-      return ((left ?? 0) - (right ?? 0)) * order;
-    });
-  }, [filteredRows, sortConfig]);
+  const sortedRows = useMemo(
+    () =>
+      [...filteredRows].sort((a, b) => {
+        const { key, direction } = sortConfig;
+        const order = direction === 'asc' ? 1 : -1;
+        const left = a[key];
+        const right = b[key];
+        if (typeof left === 'string' && typeof right === 'string') return left.localeCompare(right) * order;
+        return ((left ?? 0) - (right ?? 0)) * order;
+      }),
+    [filteredRows, sortConfig]
+  );
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -88,36 +92,52 @@ export default function DashboardPage() {
         <section className="mt-6 space-y-6">
           <SummaryCards rows={rows} />
 
-          <div className="rounded-3xl border border-dashboard-border bg-white p-5 shadow-soft">
-            <label htmlFor="ticker-search" className="mb-2 block text-xs uppercase tracking-wide text-dashboard-muted">Find ticker</label>
-            <input
-              id="ticker-search"
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search and focus a ticker (e.g., AAPL)"
-              className="w-full rounded-xl border border-dashboard-border bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-dashboard-accent transition focus:ring-2"
-            />
+          <div className="grid gap-4 rounded-3xl border border-dashboard-border bg-white p-5 shadow-soft lg:grid-cols-[1fr_auto_auto]">
+            <div>
+              <label htmlFor="ticker-search" className="mb-2 block text-xs uppercase tracking-wide text-dashboard-muted">Find ticker</label>
+              <input
+                id="ticker-search"
+                type="text"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search and focus a ticker (e.g., AAPL)"
+                className="w-full rounded-xl border border-dashboard-border bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-dashboard-accent transition focus:ring-2"
+              />
+            </div>
+
+            <div className="self-end">
+              <label htmlFor="cluster-k" className="mb-2 block text-xs uppercase tracking-wide text-dashboard-muted">Clusters (k)</label>
+              <select id="cluster-k" value={k} onChange={(e) => setK(Number(e.target.value))} className="rounded-xl border border-dashboard-border bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {Array.from({ length: 9 }, (_, idx) => idx + 4).map((value) => (
+                  <option key={value} value={value}>{value}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="self-end">
+              <button type="button" onClick={() => setMode((prev) => (prev === 'ring' ? 'structure' : 'ring'))} className="rounded-xl border border-dashboard-border bg-dashboard-panelAlt px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                {mode === 'ring' ? 'Form Structure' : 'Return to Ring'}
+              </button>
+            </div>
           </div>
 
-          <MarketMap
-            rows={rows}
-            focusedTicker={focusedTicker}
-            selectedTicker={selectedTicker}
-            onSelect={(ticker) => setSelectedTicker((prev) => (prev === ticker ? '' : ticker))}
-          />
+          <MarketMap rows={rows} focusedTicker={focusedTicker} selectedTicker={selectedTicker} onSelect={(ticker) => setSelectedTicker((prev) => (prev === ticker ? '' : ticker))} mode={mode} k={k} />
+
+          <div className="rounded-3xl border border-dashboard-border bg-white p-5 text-sm text-slate-600 shadow-soft">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-dashboard-muted">How to read this map</h3>
+            <ul className="space-y-2">
+              <li><span className="font-medium text-slate-700">Ring Mode:</span> neutral circular asset universe view with slow structural rotation.</li>
+              <li><span className="font-medium text-slate-700">Structure Mode:</span> KMeans grouping on normalized return, volatility, momentum, and drawdown.</li>
+              <li><span className="font-medium text-slate-700">Lines:</span> nearest-neighbor links within the same cluster, rendered softly to show local relationships.</li>
+            </ul>
+          </div>
 
           <div className="space-y-3">
             <h3 className="text-sm font-medium uppercase tracking-wide text-dashboard-muted">Feature table (secondary view)</h3>
             <FeatureTable
               rows={sortedRows}
               sortConfig={sortConfig}
-              onSort={(column) =>
-                setSortConfig((prev) => ({
-                  key: column,
-                  direction: prev.key === column && prev.direction === 'asc' ? 'desc' : 'asc',
-                }))
-              }
+              onSort={(column) => setSortConfig((prev) => ({ key: column, direction: prev.key === column && prev.direction === 'asc' ? 'desc' : 'asc' }))}
             />
           </div>
         </section>
