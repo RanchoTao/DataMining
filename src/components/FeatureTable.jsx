@@ -2,6 +2,15 @@ import { formatPercent, formatPrice } from '../utils/formatters';
 
 const percentColumns = new Set(['return_1y', 'volatility_1y', 'momentum_6m', 'max_drawdown_1y']);
 
+const labels = {
+  ticker: '股票代码',
+  latest_price: '最新价格',
+  return_1y: '收益率',
+  volatility_1y: '波动率',
+  momentum_6m: '动量',
+  max_drawdown_1y: '最大回撤',
+};
+
 export default function FeatureTable({ rows, sortConfig, onSort }) {
   const columns = ['ticker', 'latest_price', 'return_1y', 'volatility_1y', 'momentum_6m', 'max_drawdown_1y'];
 
@@ -21,12 +30,8 @@ export default function FeatureTable({ rows, sortConfig, onSort }) {
             <tr>
               {columns.map((column) => (
                 <th key={column} className="border-b border-dashboard-border px-4 py-3 text-left">
-                  <button
-                    className="flex items-center gap-2 text-xs uppercase tracking-wide text-dashboard-muted hover:text-dashboard-text"
-                    onClick={() => onSort(column)}
-                    type="button"
-                  >
-                    {column}
+                  <button className="flex items-center gap-2 text-sm text-dashboard-muted hover:text-dashboard-text" onClick={() => onSort(column)} type="button">
+                    {labels[column]}
                     <span>{sortConfig.key === column ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                   </button>
                 </th>

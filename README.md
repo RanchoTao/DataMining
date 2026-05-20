@@ -1,12 +1,12 @@
-# S&P500 Market Map
+# 标普500市场结构
 
-A static React + Vite + Tailwind dashboard that visualizes S&P500 features as an animated, light-theme market map using local CSV data.
+这是一个基于 React + Vite + Tailwind 的静态前端项目，使用本地 CSV 数据展示标普500资产的市场结构可视化。
 
-## Live Site
+## 线上地址
 
 - https://ranchotao.github.io/DataMining/
 
-## Stack
+## 技术栈
 
 - React
 - Vite
@@ -14,86 +14,29 @@ A static React + Vite + Tailwind dashboard that visualizes S&P500 features as an
 - PapaParse
 - Framer Motion
 
-## Data Pipeline
+## 数据说明
 
-- Source file: `sp500_features.csv`
-- Frontend-loaded file: `public/sp500_features.csv`
-- Fetch path: `fetch(`${import.meta.env.BASE_URL}sp500_features.csv`)`
-- Parser: PapaParse (`header: true`, `skipEmptyLines: true`)
+- 源数据：`sp500_features.csv`
+- 前端读取：`public/sp500_features.csv`
+- 读取方式：`fetch(`${import.meta.env.BASE_URL}sp500_features.csv`)`
 
-## Features
-
-- Light, minimal, VD-style UI with rounded cards, subtle shadows, and thin borders.
-- Main two-state animated SVG market map:
-  - x-axis: `volatility_1y`
-  - y-axis: `return_1y`
-  - node size: `abs(momentum_6m)`
-  - node color: soft blue (positive return), soft red (negative return)
-  - top 15 labels by importance (`max(abs(return_1y), abs(momentum_6m))`)
-  - faint animated proximity lines
-  - smooth node entry + subtle breathing motion
-- Interaction:
-  - Hover tooltip with ticker and all feature values
-  - Click node to highlight selection
-  - Search box focuses/highlights ticker
-- Summary cards:
-  - number of assets
-  - average return
-  - average volatility
-  - worst drawdown
-- Secondary sortable/searchable table below visualization.
-
-## Project Structure
-
-```text
-src/
-  components/
-    FeatureTable.jsx
-    MarketMap.jsx
-    SummaryCards.jsx
-  pages/
-    DashboardPage.jsx
-  utils/
-    formatters.js
-  App.jsx
-  main.jsx
-  index.css
-public/
-  sp500_features.csv
-.github/workflows/
-  deploy.yml
-```
-
-## Local Run
+## 本地运行
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Production Build
+## 构建
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## GitHub Pages Deployment
+## 可视化说明
 
-`vite.config.js` is configured with:
-
-- `base: '/DataMining/'`
-
-Deployment is handled by `.github/workflows/deploy.yml` on pushes to `main`.
-
-## Constraints
-
-- Static frontend only.
-- No backend, database, or authentication.
-- No predictions or trading advice.
-
-
-## Two-State Structure Controls
-
-- Toggle button: **Form Market Structure** / **Return to Ring**.
-- KMeans cluster count selector: **k = 4..12** (default 8).
+- 圆环态：展示统一市场空间中的初始资产分布。
+- 市场结构态：展示收益率-波动率平面中的资产结构。
+- 聚类：KMeans 仅用于节点颜色与同类连线。
+- 连线：同一聚类内的近邻关系。

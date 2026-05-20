@@ -22,7 +22,7 @@ export default function DashboardPage() {
       setError('');
       try {
         const response = await fetch(`${import.meta.env.BASE_URL}sp500_features.csv`);
-        if (!response.ok) throw new Error(`Failed to load CSV: ${response.status}`);
+        if (!response.ok) throw new Error(`CSV加载失败: ${response.status}`);
         const csvText = await response.text();
         const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
         if (parsed.errors.length) throw new Error(parsed.errors[0].message);
@@ -40,7 +40,7 @@ export default function DashboardPage() {
 
         if (active) setRows(normalized);
       } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : 'Unexpected error while loading CSV.');
+        if (active) setError(err instanceof Error ? err.message : '数据加载发生异常。');
       } finally {
         if (active) setLoading(false);
       }
@@ -65,48 +65,47 @@ export default function DashboardPage() {
   }, [rows, search]);
 
   const sortedRows = useMemo(
-    () =>
-      [...filteredRows].sort((a, b) => {
-        const { key, direction } = sortConfig;
-        const order = direction === 'asc' ? 1 : -1;
-        const left = a[key];
-        const right = b[key];
-        if (typeof left === 'string' && typeof right === 'string') return left.localeCompare(right) * order;
-        return ((left ?? 0) - (right ?? 0)) * order;
-      }),
+    () => [...filteredRows].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      const order = direction === 'asc' ? 1 : -1;
+      const left = a[key];
+      const right = b[key];
+      if (typeof left === 'string' && typeof right === 'string') return left.localeCompare(right) * order;
+      return ((left ?? 0) - (right ?? 0)) * order;
+    }),
     [filteredRows, sortConfig]
   );
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="rounded-3xl border border-dashboard-border bg-white p-7 shadow-soft">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-800">S&amp;P500 Market Map</h1>
-        <p className="mt-2 text-sm text-dashboard-muted">Visual structure of S&amp;P500 assets based on return, risk, momentum and drawdown.</p>
+      <header className="rounded-3xl border border-dashboard-border bg-white p-8 shadow-soft">
+        <h1 className="text-4xl font-semibold tracking-wide text-slate-800">标普500市场结构</h1>
+        <p className="mt-3 text-base leading-relaxed text-dashboard-muted">基于收益率、风险、动量与回撤特征构建的市场结构可视化研究界面。</p>
       </header>
 
       {loading ? (
-        <div className="mt-6 rounded-3xl border border-dashboard-border bg-white px-6 py-16 text-center text-dashboard-muted shadow-soft">Loading market structure...</div>
+        <div className="mt-6 rounded-3xl border border-dashboard-border bg-white px-6 py-16 text-center text-dashboard-muted shadow-soft">正在加载市场结构数据...</div>
       ) : error ? (
-        <div className="mt-6 rounded-3xl border border-dashboard-negative/40 bg-white px-6 py-16 text-center text-dashboard-negative shadow-soft">Unable to load data: {error}</div>
+        <div className="mt-6 rounded-3xl border border-dashboard-negative/40 bg-white px-6 py-16 text-center text-dashboard-negative shadow-soft">数据加载失败：{error}</div>
       ) : (
         <section className="mt-6 space-y-6">
           <SummaryCards rows={rows} />
 
           <div className="grid gap-4 rounded-3xl border border-dashboard-border bg-white p-5 shadow-soft lg:grid-cols-[1fr_auto_auto]">
             <div>
-              <label htmlFor="ticker-search" className="mb-2 block text-xs uppercase tracking-wide text-dashboard-muted">Find ticker</label>
+              <label htmlFor="ticker-search" className="mb-2 block text-sm text-dashboard-muted">搜索股票</label>
               <input
                 id="ticker-search"
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search and focus a ticker (e.g., AAPL)"
+                placeholder="请输入股票代码，如 AAPL / NVDA / TSLA"
                 className="w-full rounded-xl border border-dashboard-border bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none ring-dashboard-accent transition focus:ring-2"
               />
             </div>
 
             <div className="self-end">
-              <label htmlFor="cluster-k" className="mb-2 block text-xs uppercase tracking-wide text-dashboard-muted">Clusters (k)</label>
+              <label htmlFor="cluster-k" className="mb-2 block text-sm text-dashboard-muted">聚类数量</label>
               <select id="cluster-k" value={k} onChange={(e) => setK(Number(e.target.value))} className="rounded-xl border border-dashboard-border bg-slate-50 px-3 py-2 text-sm text-slate-700">
                 {Array.from({ length: 9 }, (_, idx) => idx + 4).map((value) => (
                   <option key={value} value={value}>{value}</option>
@@ -116,29 +115,25 @@ export default function DashboardPage() {
 
             <div className="self-end">
               <button type="button" onClick={() => setMode((prev) => (prev === 'ring' ? 'structure' : 'ring'))} className="rounded-xl border border-dashboard-border bg-dashboard-panelAlt px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                {mode === 'ring' ? 'Form Market Structure' : 'Return to Ring'}
+                {mode === 'ring' ? '形成市场结构' : '返回圆环'}
               </button>
             </div>
           </div>
 
           <MarketMap rows={rows} focusedTicker={focusedTicker} selectedTicker={selectedTicker} onSelect={(ticker) => setSelectedTicker((prev) => (prev === ticker ? '' : ticker))} mode={mode} k={k} />
 
-          <div className="rounded-3xl border border-dashboard-border bg-white p-5 text-sm text-slate-600 shadow-soft">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-dashboard-muted">How to read this map</h3>
-            <ul className="space-y-2">
-              <li><span className="font-medium text-slate-700">Ring Mode:</span> neutral circular asset universe view with slow structural rotation.</li>
-              <li><span className="font-medium text-slate-700">Structure Mode:</span> KMeans grouping on normalized return, volatility, momentum, and drawdown.</li>
-              <li><span className="font-medium text-slate-700">Lines:</span> nearest-neighbor links within the same cluster, rendered softly to show local relationships.</li>
+          <div className="rounded-3xl border border-dashboard-border bg-white p-5 text-sm leading-7 text-slate-600 shadow-soft">
+            <h3 className="mb-2 text-lg font-semibold text-slate-700">系统说明</h3>
+            <ul className="space-y-1">
+              <li>圆环态：所有资产处于统一市场空间中的初始状态。</li>
+              <li>市场结构态：基于收益率、波动率、动量和最大回撤构建的市场结构分布。</li>
+              <li>连线：同类资产之间的局部关联关系。</li>
             </ul>
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium uppercase tracking-wide text-dashboard-muted">Feature table (secondary view)</h3>
-            <FeatureTable
-              rows={sortedRows}
-              sortConfig={sortConfig}
-              onSort={(column) => setSortConfig((prev) => ({ key: column, direction: prev.key === column && prev.direction === 'asc' ? 'desc' : 'asc' }))}
-            />
+            <h3 className="text-sm text-dashboard-muted">特征表（辅助视图）</h3>
+            <FeatureTable rows={sortedRows} sortConfig={sortConfig} onSort={(column) => setSortConfig((prev) => ({ key: column, direction: prev.key === column && prev.direction === 'asc' ? 'desc' : 'asc' }))} />
           </div>
         </section>
       )}
